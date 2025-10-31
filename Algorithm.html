@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Seating Algorithm — Event Portal</title>
+<style>
+  body {
+    background: linear-gradient(135deg,#0f172a,#1e1b4b);
+    color: #e6eef8;
+    font-family: "Inter", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    min-height: 100vh;
+  }
+  h1 {
+    background: linear-gradient(90deg,#7c3aed,#06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  table {
+    border-collapse: collapse;
+    margin-top: 20px;
+    width: 80%;
+  }
+  th, td {
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 10px;
+    text-align: center;
+  }
+  button {
+    background: linear-gradient(90deg,#7c3aed,#06b6d4);
+    border: none;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin: 10px;
+  }
+  button:hover { opacity: 0.9; }
+  a { color: #06b6d4; text-decoration: none; margin-top: 16px; display: inline-block; }
+</style>
+</head>
+<body>
+  <h1>Seating Algorithm — Greedy Approach</h1>
+  <p style="color:#9aa4b2;">Assign higher priority guests to seats first.</p>
+  <button onclick="assignSeats()">Run Algorithm</button>
+  <button onclick="downloadCSV()">Download CSV</button>
+
+  <table id="resultTable">
+    <tr><th>Seat No</th><th>Guest Name</th><th>Priority</th></tr>
+  </table>
+
+  <a href="seating.html">→ View Semicircle Seating</a>
+
+  <script>
+    const guests = JSON.parse(localStorage.getItem("guests")) || [];
+    const seats = Array.from({length: guests.length}, (_,i)=>`Seat ${i+1}`);
+
+    function assignSeats(){
+      const sorted = [...guests].sort((a,b)=>b.priority - a.priority);
+      localStorage.setItem("sortedGuests", JSON.stringify(sorted));
+
+      const table = document.getElementById('resultTable');
+      table.innerHTML = '<tr><th>Seat No</th><th>Guest Name</th><th>Priority</th></tr>';
+      for(let i=0;i<seats.length;i++){
+        const g = sorted[i];
+        const row = `<tr><td>${seats[i]}</td><td>${g?.name || 'Empty'}</td><td>${g?.priority ?? '-'}</td></tr>`;
+        table.innerHTML += row;
+      }
+    }
+
+    function downloadCSV(){
+      let csv = "Seat No,Guest Name,Priority\n";
+      const rows = document.querySelectorAll("#resultTable tr");
+      rows.forEach((r,i)=>{
+        if(i===0) return;
+        const cols = r.querySelectorAll("td");
+        csv += `${cols[0].innerText},${cols[1].innerText},${cols[2].innerText}\n`;
+      });
+      const blob = new Blob([csv], {type: "text/csv"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "seating.csv";
+      a.click();
+    }
+  </script>
+</body>
+</html>
