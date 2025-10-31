@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Semicircular Seating Plan</title>
+<style>
+  body {
+    background: linear-gradient(135deg,#0f172a,#1e1b4b);
+    color: #e6eef8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: "Inter", sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    background: linear-gradient(90deg,#7c3aed,#06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+  }
+
+  .stage {
+    width: 90%;
+    max-width: 900px;
+    height: 500px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: radial-gradient(900px 500px at 50% 50%, rgba(255,255,255,0.05), transparent 50%);
+    box-shadow: 0 0 30px rgba(0,0,0,0.3);
+  }
+
+  .seat {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 2px dashed rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    text-align: center;
+    font-size: 12px;
+    color: #e6eef8;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.8s cubic-bezier(0.25,0.8,0.25,1);
+  }
+
+  .seat.show {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .podium {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background: rgba(255,255,255,0.08);
+    padding: 10px 24px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  }
+
+  .podium strong {
+    color: #cfe9ff;
+    font-size: 14px;
+  }
+
+  a {
+    color: #06b6d4;
+    text-decoration: none;
+    margin-top: 20px;
+    display: inline-block;
+    font-size: 14px;
+  }
+
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <h1>Semicircular Seating Plan</h1>
+  <div class="stage" id="stage">
+    <div class="podium">
+      <strong>Main Stage</strong><br>
+      <small>Center</small>
+    </div>
+  </div>
+  <a href="algorithm.html">← Back to Algorithm</a>
+
+  <script>
+    const sorted = JSON.parse(localStorage.getItem("sortedGuests")) || [];
+    const stage = document.getElementById('stage');
+
+    function createSeats(){
+      stage.querySelectorAll('.seat').forEach(el => el.remove());
+      const count = sorted.length;
+      if (count === 0) return alert("No guest data found! Please start from guest.html.");
+
+      const width = stage.clientWidth, height = stage.clientHeight;
+      const cx = width / 2, cy = height / 2; // center of stage
+      const radius = Math.min(width, height) * 0.4;
+      const startDeg = 180, endDeg = 0; // top semicircle
+      const arc = startDeg - endDeg;
+
+      sorted.forEach((guest, i) => {
+        const t = i / (count - 1 || 1);
+        const deg = startDeg - t * arc;
+        const rad = deg * Math.PI / 180;
+        const x = cx + radius * Math.cos(rad);
+        const y = cy + radius * Math.sin(rad);
+
+        const seat = document.createElement('div');
+        seat.className = 'seat';
+        seat.style.left = `${x - 40}px`;
+        seat.style.top = `${y - 40}px`;
+        seat.innerHTML = `<b>${guest.name}</b><br><small>P:${guest.priority}</small>`;
+        stage.appendChild(seat);
+
+        // Animate each seat one by one
+        setTimeout(() => seat.classList.add('show'), i * 250);
+      });
+    }
+
+    window.addEventListener('resize', createSeats);
+    createSeats();
+  </script>
+</body>
+</html>
